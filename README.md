@@ -1,8 +1,7 @@
 # evidence-judge
 
-An OpenCode plugin that turns a study question into a `dossier.md` based
-**exclusively on real sources** — with isolated critics and a judge as the
-content gate.
+> Evidence-first research for OpenCode V2: isolated critics, one binary judge,
+> and a dossier built only from verified excerpts.
 
 ![The judge in court: a binary PASS/FAIL gate over evidence](docs/images/judge-metaphor.svg)
 
@@ -20,11 +19,20 @@ and a binary judge gate decides what becomes fact, `pending`, or `excluded`. The
 orchestrator only transcribes those decisions — it never invents them.
 
 It is built for studying and verifying claims, not for producing plausible text
-or professional advice. See [How it works](#how-it-works) for the protocol and
+or professional advice. See [How it works](#how-it-works) for the protocol,
+[Definitions](#definitions) for the vocabulary, and
 [Design decisions](#design-decisions) for the trade-offs.
 
-Requires OpenCode V2 (plugin API 2.x; tested on 2.3.0), Git, and network access
-to fetch the `@opencode/plugin` dependency.
+| At a glance | |
+| --- | --- |
+| **Host** | OpenCode V2 (plugin API 2.x; tested on 2.3.0), POSIX shell |
+| **Install** | git spec pinned to `v0.1.0` (or an exact commit SHA) |
+| **Entry point** | `/judge <request>` |
+| **Output** | `dossier.md` in a temporary system directory |
+| **Gate** | binary `PASS`/`FAIL`, at most two retries |
+
+Requires Git and network access at install time to fetch the `@opencode/plugin`
+dependency.
 
 ## Installation
 
@@ -64,13 +72,13 @@ at the absolute path of the clone (OpenCode does not expand `~`):
 See the [installation guide](https://github.com/yoAlves/evidence-judge/blob/main/.opencode/INSTALL.md)
 for details, updating, and troubleshooting.
 
-If a `judge` skill or command from another source already exists (your own
-files or another plugin), the plugin **does not overwrite it**: the existing
-definition wins and, in most cases, the whole pair is left out. In a rare race,
-the plugin's skill may end up registered without the command. To use the
-plugin's version, remove or rename the old definition before installing.
-Definitions owned by the plugin itself are re-registered without warning — the
-host may call the plugin setup more than once per load.
+> **Existing `judge` definitions win.** If a `judge` skill or command from
+> another source already exists (your own files or another plugin), the plugin
+> does not overwrite it: the existing definition wins and, in most cases, the
+> whole pair is left out. In a rare race, the plugin's skill may end up
+> registered without the command. Remove or rename the old definition before
+> installing. Definitions owned by the plugin itself are re-registered without
+> warning — the host may call the plugin setup more than once per load.
 
 ## Usage
 
@@ -112,15 +120,61 @@ decisions live, and why the judge is the only content gate.
 
 ![Architecture: isolated critics, evidence, judge, and ledger](docs/images/judge-arch.svg)
 
-### Design decisions
+## Definitions
 
-- **No excerpt, no claim.** Inference only appears as `pending`. The cost is a smaller dossier; the gain is that nothing is invented.
-- **Critics do not see each other; the judge does not see the previous judge report or earlier rounds' critiques.** This avoids anchoring and critique contamination. The ledger carries the decisions already recorded; isolation applies to reports and critiques, not to ledger state. Cost: more subagents per run.
-- **The judge is the only content gate.** The orchestrator only transcribes decisions verbatim, without changing values; the assembly check verifies form, not merit.
-- **Binary gate.** Removes the gray zone of "almost approved". Cost: more retries in borderline cases.
-- **Temporary scratchpad, nothing in the project.** The process leaves no litter in the user's repository.
-- **External content is data, not instruction.** Commands embedded in pages are ignored and recorded as an injection attempt.
-- **Progressive disclosure.** `SKILL.md` carries the always-on protocol, and each step loads only its own reference from `skills/judge/references/` — nothing loads all eight at once, keeping context small and focused on what the current step needs.
+| Term | Meaning |
+| --- | --- |
+| **Evidence** | A literal excerpt from a real source, with a re-findable locator. No excerpt, no claim. |
+| **Delivery contract** | The verifiable requirements in the request (count, language, snippet format, fields). An incomplete contract cannot be approved. |
+| **Ledger** | Consolidated evidence and recorded decisions, versioned by `ledger_version` (revision + line count). Shared state — not the critics' or judge's reports. |
+| **Conflict** | A documented relationship between evidence items: `factual_clash`, `scope_clash`, `duplicate`, or `dead_reference`. |
+| **Critic panel** | 2–5 isolated reviewers. Each sees the ledger, conflicts, and their own brief — never `research/`, other critiques, or judge reports. |
+| **Judge gate** | The only content gate. Binary `PASS`/`FAIL`; no "approved with conditions". |
+| **`pending` / `excluded`** | A claim held without a verdict / rejected by the gate. Neither is presented as fact. |
+| **Scratchpad** | A temporary runtime directory (via `mktemp`). Nothing is written into the user's project. |
+| **Injection attempt** | Instructions embedded in fetched pages. Ignored and recorded as data, never followed. |
+
+## Design decisions
+
+| Decision | Why | Cost |
+| --- | --- | --- |
+| No excerpt, no claim | Inference appears only as `pending`; nothing is invented | Smaller dossier |
+| Isolated critics, blind judge | Avoids anchoring and critique contamination; ledger state is still shared | More subagents per run |
+| The judge is the only content gate | The orchestrator transcribes decisions verbatim; the assembly check tests form, not merit | No automatic repair of weak reasoning |
+| Binary gate | Removes the gray zone of "almost approved" | More retries in borderline cases |
+| Temporary scratchpad only | No litter in the user's repository | Artifacts vanish after the run |
+| External content is data | Embedded commands are ignored and recorded as injection attempts | Requires disciplined prompt handling |
+| Progressive disclosure | `SKILL.md` holds the always-on protocol; each step loads only its own reference from `skills/judge/references/` | More files, one load per step |
+
+## What works well
+
+- Every claim in the dossier is traceable to a quoted excerpt and a locator.
+- Assembly is deterministic: ledger order, grouped by domain in first-appearance order, with no index mapping.
+- Isolation limits anchoring and critique contamination without hiding ledger state.
+- The protocol leaves no artifacts in the user's project.
+- The core is portable markdown plus one TypeScript adapter; installation is a single config line.
+- Releases are reproducible: the git tag is pinned, and installs by SHA, tag, and CLI were verified in isolated profiles with no plugin warnings.
+
+## Open points
+
+- **Windows is untested.** The protocol assumes a POSIX shell and `mktemp`; a POSIX-compatible environment is required.
+- **No npm registry publish.** Distribution is the OpenCode git spec only; the npm name remains unclaimed.
+- **No CI, provenance, changelog, or version badge.** The GitHub Release carries the 0.1.0 notes.
+- **Claude Code adapter deferred.** It would swap only `src/index.ts`; the markdown core is neutral.
+- **Cost of isolation.** More subagents per run and up to two retries mean extra time and tokens.
+- **Judge isolation is deliberate.** A retrying judge sees the ledger, conflicts, and the current version's critiques — never a previous judge report or earlier rounds' critiques.
+- **Sources are external.** Availability, accuracy, and terms of third-party pages can change; the output is not professional advice.
+- **Pinned installs are static.** Tags never move, so a fix ships as a new tag; `opencode plugin list`/`check` may not show git-spec plugins, and CLI management needs the exact specifier from the config.
+
+## Status
+
+| Item | Value |
+| --- | --- |
+| Version | 0.1.0 |
+| Install ref | `v0.1.0` (annotated tag, never moved) |
+| Release | [GitHub Release](https://github.com/yoAlves/evidence-judge/releases/tag/v0.1.0) |
+| Verified commit | `0336dcd4415a37bc5c7f1cd28e611b70d0727cf4` |
+| Hygiene gate | `npm run check` → `HYGIENE: PASS` before the tag |
 
 ## Structure
 
