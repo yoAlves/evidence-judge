@@ -1,5 +1,9 @@
 # Plan — evidence-judge (isolated OpenCode plugin)
 
+> **Distribution update (2026-11-19):** npm publish was abandoned in favor of
+> an OpenCode git-backed plugin spec. See `docs/plan/git-spec-release.md`.
+> The npm-specific parts below remain as historical context only.
+
 ## Context and locked decisions
 
 - **Goal:** publish the `judge` approach (research with real sources, isolated critics, judge as a binary gate) to npm as an installable plugin, for others to actually use and to show fluency in agent engineering.
@@ -25,16 +29,17 @@ evidence-judge/
 ├── skills/judge/
 │   ├── SKILL.md              # neutral core + hard rules
 │   └── references/           # the 8 step references, loaded on demand
-├── scripts/check-hygiene.sh  # pre-publish hygiene gate
+├── scripts/check-hygiene.sh  # release hygiene gate
 ├── docs/                     # versioned plan + SVG diagrams
-├── releases/                 # pinned snapshots
-├── .specs/                   # sanitized project state
 ├── README.md                 # installation + usage
 ├── LICENSE
 └── .gitignore
 ```
 
-End-user install: `plugins: ["evidence-judge"]` in `opencode.json`. The `/judge` command does `ctx.session.prompt` instructing to load the `judge` skill — without depending on `@judge` (documented fragility).
+End-user install: the git spec in `plugins` (see
+`docs/plan/git-spec-release.md`). The `/judge` command does `ctx.session.prompt`
+instructing to load the `judge` skill — without depending on `@judge`
+(documented fragility).
 
 ## Hygiene gate (per copied file)
 
