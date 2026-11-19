@@ -82,24 +82,26 @@ for details, updating, and troubleshooting.
 
 ## Usage
 
-```
+Run the command with a request:
+
+```text
 /judge <request>
-```
-
-Example:
-
-```
-/judge Research X from official sources. Deliver: 2–3 items per topic,
-in English, with a short evidence quote and a re-findable locator.
 ```
 
 The request should state whatever is verifiable (count, language, snippet
 format, required fields). That becomes the **delivery contract**, which is an
 approval requirement — the judge does not approve an incomplete contract.
 
+### Example: research dossier
+
+```text
+/judge Research X from official sources. Deliver: 2–3 items per topic,
+in English, with a short evidence quote and a re-findable locator.
+```
+
 ### Example: source-grounded questions and tests
 
-```
+```text
 /judge Build a study quiz about topic X from official documentation.
 Deliver: 2–3 questions per subtopic, in English, each with the correct answer,
 a short evidence quote, and a re-findable locator. Mark any item without a
@@ -192,7 +194,7 @@ decisions live, and why the judge is the only content gate.
 
 ## Structure
 
-```
+```text
 .opencode/INSTALL.md      detailed install/verify/update guide
 src/index.ts              registers the skill and the command
 skills/judge/SKILL.md     protocol and hard rules
