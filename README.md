@@ -97,6 +97,20 @@ The request should state whatever is verifiable (count, language, snippet
 format, required fields). That becomes the **delivery contract**, which is an
 approval requirement — the judge does not approve an incomplete contract.
 
+### Example: source-grounded questions and tests
+
+```
+/judge Build a study quiz about topic X from official documentation.
+Deliver: 2–3 questions per subtopic, in English, each with the correct answer,
+a short evidence quote, and a re-findable locator. Mark any item without a
+direct quote as `pending`.
+```
+
+Questions and answers are claims like any other in the dossier: each one keeps
+the quote and locator of the evidence behind it. If an answer cannot be traced
+to a real excerpt, it stays `pending` (or `excluded`) instead of being presented
+as fact — so the generated study material always tells you where it came from.
+
 The output is a `dossier.md` in a temporary system directory. The user's
 document is not edited; if an edit is requested later, it is a separate step.
 
@@ -202,9 +216,9 @@ bash scripts/check-hygiene.sh
 ```
 
 It fails if an absolute path, local environment reference, or foreign project
-name appears in the published package files (`src`, `skills`, `README.md`,
-`LICENSE`, `package.json`). The gate is a dev tool and is not shipped in the
-installed package, so run it from the repository.
+name appears in the package files (`src`, `skills`, `README.md`, `LICENSE`,
+`package.json`) or in `.gitignore` (checked as a precaution). The gate is a dev
+tool and is not shipped in the installed package, so run it from the repository.
 
 ## Acknowledgements
 
