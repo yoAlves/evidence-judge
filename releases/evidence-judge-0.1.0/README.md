@@ -88,6 +88,12 @@ document is not edited; if an edit is requested later, it is a separate step.
 
 ![Fan-out > fan-in and the retry iteration cycle](docs/images/fan-out-cycle.svg)
 
+The first diagram shows the run as a cycle: researchers fan out, evidence
+converges into the ledger, the critic panel reviews, and the judge either
+passes the dossier or sends the retry back to the ledger. The second shows the
+same system as a static architecture: who can see what, where evidence and
+decisions live, and why the judge is the only content gate.
+
 ![Architecture: isolated critics, evidence, judge, and ledger](docs/images/judge-arch.svg)
 
 ### Design decisions
