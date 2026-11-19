@@ -10,28 +10,37 @@ The goal is not to "generate plausible text". It is to produce material where
 every claim traces back to a verified excerpt, and whatever fails the gate
 becomes `pending` or `excluded` (never fact).
 
-Requires OpenCode V2 (plugin API 2.x) with subagents and shell/write access.
+Requires OpenCode V2 (plugin API 2.x; tested on 2.3.0), Git, and network access
+to fetch the `@opencode/plugin` dependency.
 
 ## Installation
 
-Add the package to your OpenCode config:
+Add the pinned git spec to your OpenCode config:
 
 ```jsonc
 {
-  "plugins": ["evidence-judge"]
+  "plugins": ["evidence-judge@git+https://github.com/yoAlves/evidence-judge.git#v0.1.0"]
 }
+```
+
+Or install it from the CLI:
+
+```bash
+opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
 ```
 
 The plugin registers the `judge` skill and the `/judge` command. No need to
 create agent, skill, or command files by hand.
 
-To pin the version, use `"plugins": ["evidence-judge@0.1.0"]` or
-`opencode plugin add evidence-judge@0.1.0` — exact versions stay pinned and are
-not updated automatically. (Both forms above work after the package is
-published to npm.)
+- **Unpinned:** drop `#v0.1.0` to install the latest commit at install time.
+- **Exact pin:** use the full commit SHA from the release notes (`#<sha>`);
+  tags are never moved.
 
-Not published yet? Clone this repository and point the cloned directory in
-`plugins` — a local path resolves relative to the config file:
+Save the config and OpenCode reloads plugins. If the command does not appear,
+run `/reload` or `opencode service restart`.
+
+For development, clone the repository, run `npm install`, and point `plugins`
+at the clone — a local path resolves relative to the config file:
 
 ```jsonc
 {
@@ -39,14 +48,8 @@ Not published yet? Clone this repository and point the cloned directory in
 }
 ```
 
-For an offline or pre-publish copy, point `plugins` at the pinned snapshot —
-it is self-contained (package files + the README images):
-
-```jsonc
-{
-  "plugins": ["/path/to/evidence-judge/releases/evidence-judge-0.1.0"]
-}
-```
+See [`.opencode/INSTALL.md`](.opencode/INSTALL.md) for the detailed guide,
+updating, and troubleshooting.
 
 If a `judge` skill or command from another source already exists (your own
 files or another plugin), the plugin **does not overwrite it**: the existing
@@ -112,14 +115,19 @@ decisions live, and why the judge is the only content gate.
 src/index.ts              registers the skill and the command
 skills/judge/SKILL.md     protocol and hard rules
 skills/judge/references/  per-step references, loaded on demand
-scripts/check-hygiene.sh  pre-publish hygiene gate
+scripts/check-hygiene.sh  release hygiene gate
 docs/                     versioned plan (plan/) and diagrams (images/)
-releases/<version>/       self-contained pinned copy (package files + README images)
 ```
 
 ## Development
 
-In the repository, run the hygiene gate before publishing:
+In the repository, run the hygiene gate before creating a release tag:
+
+```bash
+npm run check
+```
+
+or directly:
 
 ```bash
 bash scripts/check-hygiene.sh
@@ -127,9 +135,8 @@ bash scripts/check-hygiene.sh
 
 It fails if an absolute path, local environment reference, or foreign project
 name appears in the published package files (`src`, `skills`, `README.md`,
-`LICENSE`, `package.json`). `npm publish` runs this gate automatically via
-`prepublishOnly`; run it from the repository, since the gate is a dev tool and
-is not shipped in the npm tarball.
+`LICENSE`, `package.json`). The gate is a dev tool and is not shipped in the
+installed package, so run it from the repository.
 
 ## License
 
