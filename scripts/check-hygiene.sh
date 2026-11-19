@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pre-publish hygiene gate: fails if the folder contains absolute paths,
+# Release hygiene gate: fails if the folder contains absolute paths,
 # local environment references, author customizations, or foreign project
 # names.
 set -euo pipefail

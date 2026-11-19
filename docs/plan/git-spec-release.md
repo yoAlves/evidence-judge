@@ -2,6 +2,12 @@
 
 > **Status:** Approved 2026-11-19; this supersedes the npm publish runbook.
 
+> **Executed 2026-11-19:** all eight tasks passed. Release commit
+> `0336dcd4415a37bc5c7f1cd28e611b70d0727cf4`; annotated tag `v0.1.0` and
+> GitHub Release published; `HYGIENE: PASS` before the tag. Git-spec installs by
+> full SHA, by tag and via CLI were verified in isolated profiles with no
+> `[evidence-judge]` warnings. The checkboxes below are the original plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship `evidence-judge` 0.1.0 as an OpenCode V2 plugin installed from GitHub via a git-backed package spec, with the `v0.1.0` tag as the release artifact and no npm registry publish.
