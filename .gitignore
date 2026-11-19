@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# package artifacts
+*.tgz
+
+# local project state (kept out of the public repo)
+.specs/
+
+# local OpenCode config (may contain machine-specific settings)
+opencode.json
+opencode.jsonc
+
+# secrets and local environment
+.env
+.env.*
+!.env.example
+.npmrc
+
+# logs and coverage
+npm-debug.log*
+coverage/
+
+# OS metadata
+.DS_Store
+Thumbs.db

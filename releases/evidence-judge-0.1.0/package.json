@@ -1,0 +1,36 @@
+{
+  "name": "evidence-judge",
+  "version": "0.1.0",
+  "description": "Research plugin with real sources, isolated critics, and a judge gate",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "opencode",
+    "plugin",
+    "judge",
+    "research",
+    "sources",
+    "study"
+  ],
+  "license": "MIT",
+  "author": "yoAlves",
+  "homepage": "https://github.com/yoAlves/evidence-judge#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoAlves/evidence-judge.git"
+  },
+  "scripts": {
+    "prepublishOnly": "bash scripts/check-hygiene.sh"
+  },
+  "dependencies": {
+    "@opencode/plugin": "^2.3.2"
+  }
+}
