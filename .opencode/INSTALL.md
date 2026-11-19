@@ -22,7 +22,8 @@ Add the pinned git spec to your OpenCode config:
 
 ### CLI alternative
 
-The CLI writes the global configuration for you:
+The CLI installs the package and adds the entry to the OpenCode config it
+manages:
 
 ```bash
 opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
@@ -37,8 +38,8 @@ opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
 
 ### Local checkout
 
-Clone the repository, run `npm install`, and point `plugins` at the clone — a
-local path resolves relative to the config file:
+Clone the repository, run `npm install`, and point `plugins` at the absolute
+path of the clone (OpenCode does not expand `~`):
 
 ```jsonc
 {
@@ -51,17 +52,25 @@ run `/reload`, or restart the service with `opencode service restart`.
 
 ## Verify
 
-- Run `/judge <request>` — the command should start a judge run.
-- Or load the `judge` skill with the skill tool; the SKILL.md protocol appears.
-- A clean profile shows no `[evidence-judge]` warnings in the server log.
+- Run `/judge <request>` — the command is the primary check.
+- If your client exposes manually loaded skills, load `judge` by id; the SKILL.md
+  protocol appears. The skill is registered with `autoinvoke: false`, so it may
+  not appear in a list of announced skills.
+- A clean profile emits no `[evidence-judge]` warnings on the stderr of the
+  serving process (`opencode serve` output or the service's stderr).
 
 ## Updating
 
 An unpinned install resolves at install time and does not auto-update.
+`opencode plugin check` reports outdated packages. `opencode plugin update` with
+the configured package target updates non-exact revisions, while exact SHAs stay
+pinned. Some
+OpenCode versions also pin a git dependency in a cache manifest and lockfile, so
+an update can be a no-op — clear the OpenCode package cache or reinstall the
+plugin if the new revision does not appear.
 
-- `opencode plugin update evidence-judge` updates non-exact revisions.
-- Exact tags and SHAs are skipped, so moving to a new release means editing the
-  config and reloading, or removing and adding the plugin again:
+To move to a new release, edit the config and reload, or remove and add again
+(the CLI accepts the configured package target):
 
 ```bash
 opencode plugin remove evidence-judge
@@ -74,10 +83,11 @@ Tags are never moved; a fix is a new tag.
 
 ### Plugin not loading
 
-1. Check that the `plugins` entry is valid JSON in your OpenCode config.
-2. Run `opencode plugin list` and look for `evidence-judge`.
-3. Check the server log (`opencode.log` in OpenCode's data directory) for
-   `[evidence-judge]` lines.
+1. Check the `plugins` entry in your OpenCode config (valid JSON, correct ref).
+2. Run `opencode plugin list` and `opencode plugin check`; git-backed specs may
+   not appear in `list`, so the config entry is the source of truth.
+3. General server errors go to `opencode.log` in OpenCode's data directory;
+   `[evidence-judge]` warnings go to the serving process's stderr.
 4. Reload with `/reload`, or restart with `opencode service restart`.
 
 ### Skill or command missing

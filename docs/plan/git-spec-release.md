@@ -198,7 +198,7 @@ Dispatch `@reviewer` read-only on the full diff (README, `.opencode/INSTALL.md`,
 - [ ] **Step 4: Create the branch and PR**
 
 ```bash
-git switch -c release/git-spec-0.1.0
+git switch release/git-spec-0.1.0   # created at setup, before Tasks 1–3
 git push -u origin release/git-spec-0.1.0
 gh pr create --assignee @me --title "release: 0.1.0 via git spec" --body "Ships the git-spec install docs, removes npm-only artifacts, and records the release plan."
 ```
@@ -261,7 +261,11 @@ Check the serve stderr. Expected: no `[evidence-judge]` warnings.
 
 - [ ] **Step 6: Verify the CLI install command**
 
-In an isolated config directory, run the exact CLI install command from the README and confirm it writes a config entry that loads.
+In an isolated config directory, run the CLI form of the documented spec with the release SHA substituted for the not-yet-existing tag:
+```bash
+opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#<release-sha>'
+```
+Confirm which config file received the entry and that the entry loads (server registration as in Steps 3–5). The exact README CLI form with `#v0.1.0` is verified in Task 7, after the tag exists.
 
 - [ ] **Step 7: Verify the unpinned spec and the update command**
 
@@ -271,7 +275,7 @@ Repeat Steps 1–5 in a second fresh profile with the unpinned spec:
   "plugins": ["evidence-judge@git+https://github.com/yoAlves/evidence-judge.git"]
 }
 ```
-Expected: it resolves to the release commit (or the current `main` HEAD) and registers with no warnings. Then run `opencode plugin update evidence-judge` and record whether it resolves; if the command fails or skips, document the remove/add path in `.opencode/INSTALL.md`.
+Expected: it resolves to the release commit (or the current `main` HEAD) and registers with no warnings. Then run `opencode plugin check` and `opencode plugin update evidence-judge`; record the exact output, whether the target name resolves, and whether the cache/lockfile pins the revision. If either command fails or is a no-op, keep the remove/add fallback in `.opencode/INSTALL.md` and record the accepted target syntax (`name` vs. spec).
 
 - [ ] **Step 8: Stop if anything fails**
 
@@ -327,7 +331,15 @@ Repeat Task 5 Steps 1–5 with:
 
 The cache lockfile or installed package must resolve to the tag SHA. If it does not, do not move the tag; report the mismatch.
 
-- [ ] **Step 3: Final report**
+- [ ] **Step 3: Verify the CLI form with the tag**
+
+In a separate isolated config directory, run the exact README CLI command:
+```bash
+opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
+```
+Confirm the config entry loads and the installed revision is the tag SHA.
+
+- [ ] **Step 4: Final report**
 
 Report: tag, GitHub Release URL, verified SHA, gate result, and the profiles used.
 

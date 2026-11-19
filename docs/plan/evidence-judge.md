@@ -24,6 +24,7 @@
 
 ```
 evidence-judge/
+├── .opencode/INSTALL.md      # detailed install/verify/update guide
 ├── package.json              # name: evidence-judge; exports "."; files ["src","skills","README.md","LICENSE"]
 ├── src/index.ts              # Plugin.define → ctx.skill.transform + ctx.command.transform
 ├── skills/judge/

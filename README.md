@@ -40,7 +40,7 @@ Save the config and OpenCode reloads plugins. If the command does not appear,
 run `/reload` or `opencode service restart`.
 
 For development, clone the repository, run `npm install`, and point `plugins`
-at the clone — a local path resolves relative to the config file:
+at the absolute path of the clone (OpenCode does not expand `~`):
 
 ```jsonc
 {
@@ -48,8 +48,8 @@ at the clone — a local path resolves relative to the config file:
 }
 ```
 
-See [`.opencode/INSTALL.md`](.opencode/INSTALL.md) for the detailed guide,
-updating, and troubleshooting.
+See the [installation guide](https://github.com/yoAlves/evidence-judge/blob/main/.opencode/INSTALL.md)
+for details, updating, and troubleshooting.
 
 If a `judge` skill or command from another source already exists (your own
 files or another plugin), the plugin **does not overwrite it**: the existing
@@ -112,6 +112,7 @@ decisions live, and why the judge is the only content gate.
 ## Structure
 
 ```
+.opencode/INSTALL.md      detailed install/verify/update guide
 src/index.ts              registers the skill and the command
 skills/judge/SKILL.md     protocol and hard rules
 skills/judge/references/  per-step references, loaded on demand
