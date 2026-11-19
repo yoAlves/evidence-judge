@@ -10,6 +10,19 @@ The goal is not to "generate plausible text". It is to produce material where
 every claim traces back to a verified excerpt, and whatever fails the gate
 becomes `pending` or `excluded` (never fact).
 
+## About
+
+`evidence-judge` is a small experiment in evidence-first agent engineering: a
+thin OpenCode V2 plugin (a skill plus a command) that turns a study question into
+a dossier assembled only from verified excerpts. Independent researchers gather
+sources, isolated critics review the ledger without seeing each other's work,
+and a binary judge gate decides what becomes fact, `pending`, or `excluded`. The
+orchestrator only transcribes those decisions — it never invents them.
+
+It is built for studying and verifying claims, not for producing plausible text
+or professional advice. See [How it works](#how-it-works) for the protocol and
+[Design decisions](#design-decisions) for the trade-offs.
+
 Requires OpenCode V2 (plugin API 2.x; tested on 2.3.0), Git, and network access
 to fetch the `@opencode/plugin` dependency.
 
@@ -36,8 +49,8 @@ create agent, skill, or command files by hand.
 - **Exact pin:** use the full commit SHA from the release notes (`#<sha>`);
   tags are never moved.
 
-Save the config and OpenCode reloads plugins. If the command does not appear,
-run `/reload` or `opencode service restart`.
+Config changes reload plugins automatically; `/reload` forces a reload. A
+service restart is only needed if a cached git dependency is stale.
 
 For development, clone the repository, run `npm install`, and point `plugins`
 at the absolute path of the clone (OpenCode does not expand `~`):
@@ -138,6 +151,11 @@ It fails if an absolute path, local environment reference, or foreign project
 name appears in the published package files (`src`, `skills`, `README.md`,
 `LICENSE`, `package.json`). The gate is a dev tool and is not shipped in the
 installed package, so run it from the repository.
+
+## Acknowledgements
+
+Inspired by [llm-council](https://github.com/karpathy/llm-council) and
+[claude-skills-llm-council](https://github.com/aiwithremy/claude-skills-llm-council).
 
 ## License
 

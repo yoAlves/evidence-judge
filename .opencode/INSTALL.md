@@ -22,8 +22,7 @@ Add the pinned git spec to your OpenCode config:
 
 ### CLI alternative
 
-The CLI installs the package and adds the entry to the OpenCode config it
-manages:
+The CLI installs the package and adds the entry to your global OpenCode config:
 
 ```bash
 opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
@@ -47,8 +46,9 @@ path of the clone (OpenCode does not expand `~`):
 }
 ```
 
-Save the config and OpenCode reloads plugins. If the command does not appear,
-run `/reload`, or restart the service with `opencode service restart`.
+Config changes reload plugins automatically. Use `/reload` to force a reload;
+a service restart with `opencode service restart` is only needed if a cached git
+dependency is stale.
 
 ## Verify
 
@@ -61,19 +61,29 @@ run `/reload`, or restart the service with `opencode service restart`.
 
 ## Updating
 
-An unpinned install resolves at install time and does not auto-update.
-`opencode plugin check` reports outdated packages. `opencode plugin update` with
-the configured package target updates non-exact revisions, while exact SHAs stay
-pinned. Some
-OpenCode versions also pin a git dependency in a cache manifest and lockfile, so
-an update can be a no-op — clear the OpenCode package cache or reinstall the
-plugin if the new revision does not appear.
-
-To move to a new release, edit the config and reload, or remove and add again
-(the CLI accepts the configured package target):
+An unpinned install resolves at install time and does not auto-update. For a
+git-spec install, the CLI addresses the **exact configured specifier**, not the
+bare package name: `opencode plugin list`/`check` may report no package plugins
+even while the git-spec plugin is loaded. Copy the specifier from your config,
+including any `#ref` — a near-miss is silently ignored (exit 0, no config
+change):
 
 ```bash
-opencode plugin remove evidence-judge
+opencode plugin update 'evidence-judge@git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
+```
+
+An unpinned config omits the `#v0.1.0` suffix. Pinned tags and exact SHAs are
+static by design, so check the installed revision after an update rather than
+expecting it to move. OpenCode also stores the git dependency in a cache
+manifest and lockfile (observed in the 0.1.0 installs), so an update can be a
+no-op — clear the OpenCode package cache or reinstall if the new revision does
+not appear.
+
+To move to a new release, edit the config and reload, or remove and add again
+with the exact specifier from your config:
+
+```bash
+opencode plugin remove 'evidence-judge@git+https://github.com/yoAlves/evidence-judge.git#v0.1.0'
 opencode plugin add 'git+https://github.com/yoAlves/evidence-judge.git#v0.1.1'
 ```
 
@@ -84,8 +94,8 @@ Tags are never moved; a fix is a new tag.
 ### Plugin not loading
 
 1. Check the `plugins` entry in your OpenCode config (valid JSON, correct ref).
-2. Run `opencode plugin list` and `opencode plugin check`; git-backed specs may
-   not appear in `list`, so the config entry is the source of truth.
+2. Check the serve startup log for `loading plugin id=...`. `opencode plugin
+   list` and `opencode plugin check` may report nothing for git-backed specs.
 3. General server errors go to `opencode.log` in OpenCode's data directory;
    `[evidence-judge]` warnings go to the serving process's stderr.
 4. Reload with `/reload`, or restart with `opencode service restart`.
